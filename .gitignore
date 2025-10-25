@@ -29,3 +29,7 @@ Thumbs.db
 Gategroup 2025-*/
 .ipynb_checkpoints/
 notebooks/*-checkpoint.ipynb
+/backend/models/
+/Gategroup 2025-*/
+/.ipynb_checkpoints/
+/notebooks/*-checkpoint.ipynb
