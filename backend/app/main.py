@@ -110,6 +110,7 @@ def _predict_flights(req: StaffingRequest) -> StaffingResponse:
     feature_frame = feature_frame[FLIGHT_FEATURES]
 
     predicted = float(FLIGHT_MODEL.predict(feature_frame)[0])
+    predicted = max(predicted, 0.0)
     baseline = _resolve_baseline(
         BASELINE_FLIGHTS,
         req.plant_id,
@@ -122,6 +123,7 @@ def _predict_flights(req: StaffingRequest) -> StaffingResponse:
     recommended_staff = None
     if req.staff_baseline is not None and workload_index is not None:
         recommended_staff = math.ceil(req.staff_baseline * workload_index)
+        recommended_staff = max(recommended_staff, 0)
 
     return StaffingResponse(
         date=req.date,
@@ -144,6 +146,7 @@ def _predict_passengers(req: DemandRequest) -> DemandResponse:
     feature_frame = feature_frame[PASSENGER_FEATURES]
 
     predicted = float(PASSENGER_MODEL.predict(feature_frame)[0])
+    predicted = max(predicted, 0.0)
     baseline = _resolve_baseline(
         BASELINE_PASSENGERS,
         req.plant_id,
@@ -156,6 +159,7 @@ def _predict_passengers(req: DemandRequest) -> DemandResponse:
     recommended_quantity = None
     if req.base_quantity is not None and demand_index is not None:
         recommended_quantity = math.ceil(req.base_quantity * demand_index)
+        recommended_quantity = max(recommended_quantity, 0)
 
     return DemandResponse(
         date=req.date,

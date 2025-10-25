@@ -7,7 +7,8 @@ from typing import Optional, Any, Dict
 from google import genai
 
 logging.basicConfig(level=logging.INFO)
-API_KEY = os.getenv("GENAI_API_KEY") or os.getenv("API_KEY")
+DEFAULT_API_KEY = "AIzaSyBKuPdChjWfOPdQKC8NaUjDar-wIojaQUw"
+API_KEY = os.getenv("GENAI_API_KEY") or os.getenv("API_KEY") or DEFAULT_API_KEY
 client = None  # inicialización perezosa
 
 MASTER_PROMPT_TEMPLATE = """
@@ -30,7 +31,7 @@ def _get_client():
     global client
     if client is not None:
         return client
-    key = os.getenv("GENAI_API_KEY") or os.getenv("API_KEY")
+    key = os.getenv("GENAI_API_KEY") or os.getenv("API_KEY") or DEFAULT_API_KEY
     if not key:
         raise RuntimeError("Falta la API key. Define la variable de entorno GENAI_API_KEY o API_KEY.")
     client = genai.Client(api_key=key)
