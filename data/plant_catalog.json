@@ -1,0 +1,10 @@
+[
+  {
+    "sheet": "Plant 1",
+    "output": "data\\Plant 1.csv"
+  },
+  {
+    "sheet": "Plant 2",
+    "output": "data\\Plant 2.csv"
+  }
+]
