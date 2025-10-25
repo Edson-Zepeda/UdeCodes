@@ -1,3 +1,4 @@
+# Environment
 .env
 *.env
 .env.local
@@ -7,22 +8,31 @@ venv/
 env/
 .env/
 
+# Python artifacts
 __pycache__/
 *.pyc
-
 .pytest_cache/
 .coverage
 
+# Node artifacts
 node_modules/
-
 npm-debug.log
 yarn-error.log
-
 .next/
 dist/
 build/
 
+# OS
 .DS_Store
 Thumbs.db
 
-.ipynb_checkpoints
+# Notebooks / data artifacts
+.ipynb_checkpoints/
+notebooks/*-checkpoint.ipynb
+notebooks/forecasting_model.ipynb
+
+# Project specific
+backend/models/
+Gategroup 2025-*/
+config/gemini.env
+

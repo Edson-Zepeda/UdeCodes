@@ -10,6 +10,22 @@ logging.basicConfig(level=logging.INFO)
 API_KEY = os.getenv("GENAI_API_KEY") or os.getenv("API_KEY")
 client = None  # inicialización perezosa
 
+MASTER_PROMPT_TEMPLATE = """
+Actua como simulador de datos de operaciones aereas para una empresa de catering.
+Genera un unico objeto JSON valido con el formato indicado y sin texto adicional.
+
+Formato:
+- Plantas 1 y 3: {{"day": YYYYMMDD, "flights": int, "passengers": int, "max capacity": int}}
+- Plantas 2,4,5,6: {{"day": YYYYMMDD, "flights": int}}
+
+Reglas:
+- passengers < max capacity
+- max capacity ~ passengers * (1.05 .. 1.15)
+
+Genera los datos para la Planta {plant_id} y la fecha {flight_date}.
+La salida debe ser unicamente el objeto JSON.
+""".strip()
+
 def _get_client():
     global client
     if client is not None:
@@ -115,30 +131,23 @@ def _fetch_aggregated_from_db(plant_id: int, flight_date: str) -> Optional[Dict]
 
     return None
 
-def generate_flight_data(plant_id: int, flight_date: str) -> Optional[dict]:
+def build_prompt(plant_id: int, flight_date: str) -> str:
+    formatted_date = flight_date.replace('-', '')
+    return MASTER_PROMPT_TEMPLATE.format(plant_id=plant_id, flight_date=formatted_date)
+
+
+def generate_flight_data(
+    plant_id: int,
+    flight_date: str,
+    prompt: Optional[str] = None,
+) -> Optional[dict]:
     # 1) Intentar obtener desde flights.db
     db_data = _fetch_aggregated_from_db(plant_id, flight_date)
     if db_data:
         return db_data
 
     # 2) Si no hay datos en la DB, usar Gemini para generar datos sintéticos
-    master_prompt_template = """
-Actúa como simulador de datos de operaciones aéreas para una empresa de catering.
-Genera un único objeto JSON válido con el formato indicado y sin texto adicional.
-
-Formato:
-- Plantas 1 y 3: {{"day": YYYYMMDD, "flights": int, "passengers": int, "max capacity": int}}
-- Plantas 2,4,5,6: {{"day": YYYYMMDD, "flights": int}}
-
-Reglas:
-- passengers < max capacity
-- max capacity ≈ passengers * (1.05 .. 1.15)
-
-Genera los datos para la Planta {plant_id} y la fecha {flight_date}.
-La salida debe ser únicamente el objeto JSON.
-"""
-    formatted_date = flight_date.replace('-', '')
-    prompt = master_prompt_template.format(plant_id=plant_id, flight_date=formatted_date)
+    prompt = prompt or build_prompt(plant_id, flight_date)
 
     try:
         cli = _get_client()
