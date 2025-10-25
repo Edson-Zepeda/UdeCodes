@@ -30,3 +30,8 @@ Gategroup 2025-*/
 .ipynb_checkpoints/
 notebooks/*-checkpoint.ipynb
 notebooks/forecasting_model.ipynb
+/backend/models/
+/Gategroup 2025-*/
+/.ipynb_checkpoints/
+/notebooks/*-checkpoint.ipynb
+/notebooks/forecasting_model.ipynb
