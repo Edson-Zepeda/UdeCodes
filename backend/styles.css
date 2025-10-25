@@ -1,0 +1,88 @@
+body {
+    background-color: #ffffff;
+    align-items: center;
+    position: relative;    
+    margin: 0;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333333;
+    text-align: center;
+    position: center;
+}
+
+.barra_navg {
+    align-items: center;
+    background-color: #000000;
+    overflow: hidden;
+    height: 88px;
+    display: flex;
+    align-items: center;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 0 18px;
+}
+
+
+.logo {
+    height: 250px;
+    margin-right: 250px;
+}
+
+.video_main{
+    display: block;
+    width: 100%;
+    height: 424px;
+    object-fit: cover;
+}
+
+.grupo-formulario {
+    margin-bottom: 15px;
+}
+
+.vuelos_label {
+    position: relative;
+    left: 64px;
+    top: 48px;
+    font-size: 20px;
+}
+
+
+.contenedor {
+    position: relative;
+    left: 64px;
+    top: 104px;
+    background: #E6E6E6;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(61, 60, 60, 0.1);
+    width: 330px;
+    height: 338px;
+    border-radius: 20px;
+}
+
+
+
+.grupo-formulario{
+    position: relative;
+    background-color: white;
+    padding: 0px;
+    width: 314px;
+    height: 222px;
+    border-radius: 12px;
+}
+
+.grupo-form1{
+    position: relative;
+    background-color: white;
+    padding: 0px;
+    width: 314px;
+    height: 92px;
+    border-radius: 12px;
+}
+
+
