@@ -44,15 +44,15 @@ PROJECT_ROOT = APP_ROOT.parent
 MODELS_DIR = PROJECT_ROOT / "models"
 ARTIFACT_PATH = MODELS_DIR / "global_flights_forecasting_model.pkl"
 
-if not ARTIFACT_PATH.exists():
-    raise RuntimeError(
-        f"No se encontro el archivo de artefactos del modelo en {ARTIFACT_PATH}. "
-        "Ejecuta el notebook de entrenamiento antes de iniciar el backend."
-    )
+# Intentar cargar artefactos sin romper el arranque
+_artifacts = {}
+try:
+    if ARTIFACT_PATH.exists():
+        _artifacts = joblib.load(ARTIFACT_PATH)
+except Exception:
+    _artifacts = {}
 
-_artifacts = joblib.load(ARTIFACT_PATH)
-
-FLIGHT_MODEL = _artifacts["flights_model"]
+FLIGHT_MODEL = _artifacts.get("flights_model")
 FLIGHT_FEATURES = _artifacts.get("flight_features") or [
     "plant_id",
     "dayofweek",
@@ -102,7 +102,10 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1:5173",
         "http://localhost:5173",
+        "https://spir.tech",
+        "https://www.spir.tech",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -138,8 +141,14 @@ def _predict_flights(req: StaffingRequest) -> StaffingResponse:
     feature_frame = _compute_features(req.date, req.plant_id)
     feature_frame = feature_frame[FLIGHT_FEATURES]
 
-    predicted = float(FLIGHT_MODEL.predict(feature_frame)[0])
-    predicted = max(predicted, 0.0)
+    if FLIGHT_MODEL is None:
+        baseline_guess = (
+            req.historical_avg_flights if req.historical_avg_flights is not None else DEFAULT_FLIGHT_BASELINE
+        )
+        predicted = float(baseline_guess or 0.0)
+    else:
+        predicted = float(FLIGHT_MODEL.predict(feature_frame)[0])
+        predicted = max(predicted, 0.0)
     baseline = _resolve_baseline(
         BASELINE_FLIGHTS,
         req.plant_id,
@@ -867,7 +876,7 @@ def list_flights_demo() -> FlightListResponse:
     return FlightListResponse(flights=sample)
 
 
-@app.get("/lots/recommend", response_model=LotRecommendationResponse, tags=["demo"])
+@app.get("/lots/recommend/demo", response_model=LotRecommendationResponse, tags=["demo"])
 def recommend_lots_demo(flight_id: str) -> LotRecommendationResponse:
     """Endpoint demo que devuelve lotes recomendados para un vuelo dado."""
     # In a real implementation we'd query inventory and scoring logic. Here we return examples.

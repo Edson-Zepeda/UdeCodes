@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+﻿import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../stores/session";
 import { useLots } from "../hooks/useLots";
@@ -13,7 +13,7 @@ interface LotCard {
 }
 
 const sampleLots: LotCard[] = [
-  { id: "LOT-9821", lot: "B47-2025", product: "Chips Clásicas 50g", expiry: "12 Nov 2025", bestOption: true, origin: "MEX" },
+  { id: "LOT-9821", lot: "B47-2025", product: "Chips ClÃ¡sicas 50g", expiry: "12 Nov 2025", bestOption: true, origin: "MEX" },
   { id: "LOT-1042", lot: "C12-2025", product: "Energy Bar 60g", expiry: "18 Nov 2025", origin: "DOH" },
   { id: "LOT-1183", lot: "A03-2025", product: "Jugos Premium 250ml", expiry: "26 Nov 2025", origin: "LHR" },
   { id: "LOT-1267", lot: "E08-2025", product: "Galletas Integrales", expiry: "02 Dic 2025", origin: "ZRH" }
@@ -22,7 +22,7 @@ const sampleLots: LotCard[] = [
 const LotsPage = () => {
   const navigate = useNavigate();
   const { selectedFlight, setSelectedLot } = useSession();
-  const { lots, loading } = useLots(selectedFlight?.id ?? null);
+  const { lots, loading } = useLots(selectedFlight?.id ?? null, selectedFlight?.origin ?? null);
 
   useEffect(() => {
     if (!selectedFlight) {
@@ -78,12 +78,12 @@ const LotsPage = () => {
       <section className="hero" style={{ padding: "36px 40px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 20 }}>
           <div>
-            <h1 style={{ fontSize: "1.9rem", margin: 0 }}>Optimización de lotes y caducidad</h1>
+            <h1 style={{ fontSize: "1.9rem", margin: 0 }}>OptimizaciÃ³n de lotes y caducidad</h1>
             <p style={{ maxWidth: "540px", marginTop: 8 }}>
               Priorizamos embarques bajo la estrategia FEFO y presentamos recomendaciones con impacto financiero. Selecciona un lote para asignarlo al vuelo seleccionado.
             </p>
             <div style={{ marginTop: 14 }}>
-              <strong>Vuelo seleccionado:</strong> {selectedFlight ? `${selectedFlight.id} • ${selectedFlight.route} (${selectedFlight.airline})` : "Ninguno"}
+              <strong>Vuelo seleccionado:</strong> {selectedFlight ? `${selectedFlight.id} â€¢ ${selectedFlight.route} (${selectedFlight.airline})` : "Ninguno"}
             </div>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
@@ -105,17 +105,17 @@ const LotsPage = () => {
         )}
 
         <div className="card-grid lots-grid">
-          {loading && <div style={{ color: "rgba(244,246,251,0.6)" }}>Buscando lotes recomendados…</div>}
+          {loading && <div style={{ color: "rgba(244,246,251,0.6)" }}>Buscando lotes recomendadosâ€¦</div>}
           {!loading && availableLots.map((lot: any) => (
             <article key={(lot.product_id ?? lot.id ?? Math.random()) as any} className="lot-card">
               <div className="lot-card__image" />
-              {((lot.recommended ?? lot.bestOption) as boolean) && <span className="lot-card__badge">Mejor opción</span>}
+              {((lot.recommended ?? lot.bestOption) as boolean) && <span className="lot-card__badge">Mejor opciÃ³n</span>}
               <div className="lot-card__content">
                 <p className="lot-card__title">{lot.product_name ?? lot.product}</p>
                 <p className="lot-card__meta"><strong>Lote:</strong> {lot.lot_number ?? lot.lot ?? (lot.id ?? "-")}</p>
                 <p className="lot-card__meta"><strong>Caducidad:</strong> {lot.expiry_date ?? lot.expiry ?? "-"}</p>
                 <p className="lot-card__meta"><strong>Origen:</strong> {lot.origin ?? "-"}</p>
-                <p className="lot-card__meta"><strong>Spec estándar:</strong> {lot.standard_spec_qty ?? "-"}</p>
+                <p className="lot-card__meta"><strong>Spec estÃ¡ndar:</strong> {lot.standard_spec_qty ?? "-"}</p>
                 <p className="lot-card__meta"><strong>Consumo esperado:</strong> {lot.quantity_consumed ?? "-"}</p>
                 <p className="lot-card__meta"><strong>Precio unitario:</strong> {lot.unit_cost ? `$${Number(lot.unit_cost).toFixed(2)}` : "-"}</p>
                 {lot.crew_feedback && <p className="lot-card__meta"><em>{lot.crew_feedback}</em></p>}
@@ -141,3 +141,4 @@ const LotsPage = () => {
 };
 
 export default LotsPage;
+
