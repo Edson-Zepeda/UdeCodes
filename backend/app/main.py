@@ -230,6 +230,7 @@ def simulate_generative(request: GeminiSimulationRequest) -> GeminiSimulationRes
             date=prediction_date,
             plant_id=plant_payload.plant_id,
             staff_baseline=plant_payload.staff_baseline,
+            historical_avg_flights=plant_payload.historical_avg_flights,
         )
         staffing_prediction = _predict_flights(staffing_req)
 
@@ -244,6 +245,7 @@ def simulate_generative(request: GeminiSimulationRequest) -> GeminiSimulationRes
                 date=prediction_date,
                 plant_id=plant_payload.plant_id,
                 base_quantity=base_quantity,
+                historical_avg_passengers=plant_payload.historical_avg_passengers,
             )
             try:
                 demand_prediction = _predict_passengers(demand_req)

@@ -73,6 +73,12 @@ class GeminiPlantPayload(BaseModel):
     description: Optional[str] = None
     base_quantity: Optional[float] = None
     staff_baseline: Optional[float] = None
+    historical_avg_passengers: Optional[float] = Field(
+        None, ge=0, description="Promedio historico de pasajeros para referencia."
+    )
+    historical_avg_flights: Optional[float] = Field(
+        None, ge=0, description="Promedio historico de vuelos para referencia."
+    )
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
