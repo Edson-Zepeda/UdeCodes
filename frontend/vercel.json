@@ -1,0 +1,6 @@
+﻿{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://api.spir.tech/$1" },
+    { "source": "/((?!assets|.*\\..*).*)", "destination": "/" }
+  ]
+}

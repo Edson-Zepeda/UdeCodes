@@ -1,6 +1,8 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+﻿import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://127.0.0.1:8000";
+/* API base resolves to env var, or /api proxy in Vercel/spir.tech, else localhost */
+const fromEnv = (import.meta.env.VITE_API_BASE_URL as string | undefined);
+const API_BASE = fromEnv ?? (typeof window !== "undefined" && (window.location.hostname.endsWith("vercel.app") || window.location.hostname.endsWith("spir.tech")) ? "/api" : "http://127.0.0.1:8000");
 
 export type Flight = {
   id: string;
