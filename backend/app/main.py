@@ -18,8 +18,12 @@ from .models import (
     SimulationPlantResult,
     StaffingRequest,
     StaffingResponse,
+    FinancialImpactRequest,
+    FinancialImpactResponse,
+    FinancialImpactDetail,
 )
 from .. import gemini
+from .financial import calculate_financial_impact
 
 APP_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_ROOT.parent
@@ -200,6 +204,77 @@ def predict_demand(request: DemandRequest) -> DemandResponse:
 
 
 @app.post(
+    "/predict/financial-impact",
+    response_model=FinancialImpactResponse,
+    tags=["financial"],
+)
+def predict_financial_impact(request: FinancialImpactRequest) -> FinancialImpactResponse:
+    try:
+        results = calculate_financial_impact(
+            fuel_cost_per_liter=request.fuel_cost_per_liter,
+            fuel_burn_liters_per_kg=request.fuel_burn_liters_per_kg,
+            buffer_factor=request.buffer_factor,
+            unit_margin_factor=request.unit_margin_factor,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=str(exc),
+        ) from exc
+
+    waste_multiplier = request.waste_cost_multiplier
+    waste_baseline = results.waste_cost_baseline * waste_multiplier
+    waste_spir = results.waste_cost_spir * waste_multiplier
+    waste_savings = results.waste_savings * waste_multiplier
+
+    details_payload = None
+    if request.include_details:
+        max_rows = request.max_details or 200
+        frame = results.details.head(max_rows).copy()
+        frame["waste_cost_current"] = frame["waste_cost_current"] * waste_multiplier
+        frame["waste_cost_spir"] = frame["waste_cost_spir"] * waste_multiplier
+        detail_rows = []
+        for row in frame.itertuples(index=False):
+            detail_rows.append(
+                FinancialImpactDetail(
+                    flight_id=str(getattr(row, "Flight_ID", "")),
+                    product_id=str(getattr(row, "Product_ID", "")),
+                    product_name=getattr(row, "Product_Name", None),
+                    service_type=getattr(row, "Service_Type", None),
+                    unit_cost=float(getattr(row, "Unit_Cost", 0.0) or 0.0),
+                    quantity_consumed=float(getattr(row, "Quantity_Consumed", 0.0) or 0.0),
+                    standard_spec_qty=float(getattr(row, "Standard_Specification_Qty", 0.0) or 0.0),
+                    recommended_load=float(getattr(row, "recommended_load", 0.0) or 0.0),
+                    baseline_returns=float(getattr(row, "baseline_returns", 0.0) or 0.0),
+                    spir_returns=float(getattr(row, "spir_returns", 0.0) or 0.0),
+                    waste_cost_current=float(getattr(row, "waste_cost_current", 0.0) or 0.0),
+                    waste_cost_spir=float(getattr(row, "waste_cost_spir", 0.0) or 0.0),
+                    fuel_weight_saved_kg=float(
+                        getattr(row, "fuel_weight_saved_kg", 0.0) or 0.0
+                    ),
+                    lost_units_recovered=float(
+                        getattr(row, "lost_units_recovered", 0.0) or 0.0
+                    ),
+                )
+            )
+        details_payload = detail_rows
+
+    return FinancialImpactResponse(
+        assumptions=request,
+        waste_cost_baseline=waste_baseline,
+        waste_cost_spir=waste_spir,
+        waste_savings=waste_savings,
+        fuel_weight_reduction_kg=results.fuel_weight_reduction_kg,
+        fuel_cost_savings=results.fuel_cost_savings,
+        recovered_retail_value=results.recovered_retail_value,
+        total_impact=waste_savings
+        + results.fuel_cost_savings
+        + results.recovered_retail_value,
+        details=details_payload,
+    )
+
+
+@app.post(
     "/simulate/generative",
     response_model=GeminiSimulationResponse,
     tags=["simulation"],
@@ -252,6 +327,54 @@ def simulate_generative(request: GeminiSimulationRequest) -> GeminiSimulationRes
             except HTTPException as exc:
                 if exc.status_code != 503:
                     raise
+
+        # Ajustar predicciones con datos generados por Gemini cuando haya overrides
+        gemini_total_passengers = gemini_payload.get("passengers")
+        if (
+            demand_prediction
+            and gemini_total_passengers is not None
+            and plant_payload.historical_avg_passengers
+        ):
+            baseline = plant_payload.historical_avg_passengers
+            demand_prediction.predicted_passengers = float(gemini_total_passengers)
+            demand_prediction.baseline_passengers = float(baseline)
+            demand_prediction.demand_index = (
+                float(gemini_total_passengers) / baseline if baseline > 0 else None
+            )
+            if (
+                demand_prediction.demand_index is not None
+                and plant_payload.base_quantity is not None
+            ):
+                demand_prediction.recommended_quantity = max(
+                    math.ceil(
+                        plant_payload.base_quantity * demand_prediction.demand_index
+                    ),
+                    0,
+                )
+
+        gemini_total_flights = gemini_payload.get("flights")
+        if (
+            staffing_prediction
+            and gemini_total_flights is not None
+            and plant_payload.historical_avg_flights
+        ):
+            baseline = plant_payload.historical_avg_flights
+            staffing_prediction.predicted_flights = float(gemini_total_flights)
+            staffing_prediction.baseline_flights = float(baseline)
+            staffing_prediction.workload_index = (
+                float(gemini_total_flights) / baseline if baseline > 0 else None
+            )
+            if (
+                staffing_prediction.workload_index is not None
+                and plant_payload.staff_baseline is not None
+            ):
+                staffing_prediction.recommended_staff = max(
+                    math.ceil(
+                        plant_payload.staff_baseline
+                        * staffing_prediction.workload_index
+                    ),
+                    0,
+                )
 
         plant_result = SimulationPlantResult(
             plant_id=plant_payload.plant_id,
