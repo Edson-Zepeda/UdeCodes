@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   BarElement,
@@ -141,10 +141,7 @@ const DashboardPage = () => {
           buffer_factor: assumptions.buffer_factor,
           include_details: true,
           max_details: detailsLimit,
-          context: {
-            flight_id: selectedFlight?.id,
-            lot_id: selectedLot?.id
-          }
+          flight_id: selectedFlight?.id,\n          origin: (selectedFlight as any)?.origin,\n          product_ids: selectedLot?.id ? [selectedLot.id] : undefined
         })
       });
 
@@ -222,12 +219,12 @@ const DashboardPage = () => {
               className="primary-button"
               onClick={handlePreviewSummary}
               disabled={!speechSupported || !enabled}
-              title={!speechSupported ? "Narración no soportada en este navegador" : undefined}
+              title={!speechSupported ? "NarraciÃ³n no soportada en este navegador" : undefined}
             >
               Narrar hallazgos
             </button>
             <button className="primary-button" style={{ background: "rgba(162, 133, 93, 0.9)" }} onClick={handlePreviewSuccess}>
-              Sonido de éxito
+              Sonido de Ã©xito
             </button>
           </div>
       </section>
@@ -238,7 +235,7 @@ const DashboardPage = () => {
           <p className="flight-card__route" style={{ fontSize: "1.8rem", margin: "16px 0" }}>
             {formatCurrency(data?.fuel_cost_savings ?? 0)}
           </p>
-          <p style={{ color: "rgba(244,246,251,0.6)", fontSize: "0.88rem" }}>Derivado de la reducción de peso cargado innecesariamente.</p>
+          <p style={{ color: "rgba(244,246,251,0.6)", fontSize: "0.88rem" }}>Derivado de la reducciÃ³n de peso cargado innecesariamente.</p>
         </article>
         <article className="flight-card" style={{ padding: "22px 26px" }}>
           <span className="flight-card__label">Ahorro anual estimado</span>
@@ -269,7 +266,7 @@ const DashboardPage = () => {
           <div style={{ flex: "1 1 320px", minWidth: "300px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
               <h3 style={{ margin: 0, fontSize: "1rem" }}>Controles del simulador</h3>
-              <label className="toggle" title="Activar narración y sonidos">
+              <label className="toggle" title="Activar narraciÃ³n y sonidos">
                 <input type="checkbox" checked={enabled} onChange={(event) => toggleEnabled(event.target.checked)} />
                 <span className="toggle-slider" />
               </label>
@@ -331,10 +328,10 @@ const DashboardPage = () => {
               />
             </div>
 
-            {loading && <p style={{ color: "rgba(244,246,251,0.7)", marginTop: "16px" }}>Calculando impacto…</p>}
+            {loading && <p style={{ color: "rgba(244,246,251,0.7)", marginTop: "16px" }}>Calculando impactoâ€¦</p>}
             {error && (
               <p style={{ color: "#ff7b7b", marginTop: "16px" }}>
-                {error} <br /> Revisa que el backend esté corriendo en {API_BASE}.
+                {error} <br /> Revisa que el backend estÃ© corriendo en {API_BASE}.
               </p>
             )}
           </div>
@@ -352,7 +349,7 @@ const DashboardPage = () => {
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "720px" }}>
               <thead>
                 <tr style={{ textAlign: "left", background: "rgba(255,255,255,0.04)" }}>
-                  {["Vuelo", "Producto", "Spec estándar", "Carga recomendada", "Devoluciones actuales", "Devoluciones con SPIR"].map((header) => (
+                  {["Vuelo", "Producto", "Spec estÃ¡ndar", "Carga recomendada", "Devoluciones actuales", "Devoluciones con SPIR"].map((header) => (
                     <th key={header} style={{ padding: "12px 16px", fontSize: "0.78rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                       {header}
                     </th>
@@ -373,7 +370,7 @@ const DashboardPage = () => {
                 {!data?.details?.length && (
                   <tr>
                     <td colSpan={6} style={{ padding: "16px", textAlign: "center", color: "rgba(244,246,251,0.6)" }}>
-                      Ejecuta el notebook de consumo o habilita la opción <strong>include_details</strong> para ver recomendaciones específicas.
+                      Ejecuta el notebook de consumo o habilita la opciÃ³n <strong>include_details</strong> para ver recomendaciones especÃ­ficas.
                     </td>
                   </tr>
                 )}
