@@ -140,6 +140,15 @@ class FinancialImpactRequest(BaseModel):
         ge=0,
         description="Multiplicador del Unit_Cost para estimar ingresos retail.",
     )
+    origin: Optional[str] = Field(
+        None, description="Filtro opcional del origen (planta) para el calculo financiero."
+    )
+    flight_id: Optional[str] = Field(
+        None, description="Identificador del vuelo seleccionado."
+    )
+    product_ids: Optional[List[str]] = Field(
+        None, description="Lista de productos seleccionados para el analisis."
+    )
     include_details: bool = Field(
         False,
         description="Si es verdadero, se regresa un desglose por vuelo/producto.",
@@ -180,3 +189,108 @@ class FinancialImpactResponse(BaseModel):
     details: Optional[List[FinancialImpactDetail]] = Field(
         None, description="Detalle agregado por vuelo y producto."
     )
+
+
+class FinancialImpactDelta(BaseModel):
+    waste_cost_baseline: float
+    waste_cost_spir: float
+    waste_savings: float
+    fuel_cost_savings: float
+    recovered_retail_value: float
+    total_impact: float
+
+
+class WhatIfScenarioRequest(BaseModel):
+    scenario: str
+    date: date
+    plants: List[GeminiPlantPayload]
+    use_gemini: bool = True
+    financial_assumptions: Optional[FinancialImpactRequest] = None
+    gemini_metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class WhatIfScenarioResponse(BaseModel):
+    scenario: str
+    date: date
+    plant_results: List[SimulationPlantResult]
+    financial_baseline: FinancialImpactResponse
+    financial_scenario: FinancialImpactResponse
+    financial_delta: FinancialImpactDelta
+    warnings: List[str] = Field(default_factory=list)
+    gemini_metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class FlightSummary(BaseModel):
+    flight_id: str
+    airline: str
+    route: str
+    date: str
+    departure_time: str
+    plant_id: int
+    origin: str
+    destination: str
+    passengers: Optional[int]
+    flights: Optional[int]
+    base_quantity: Optional[float] = None
+    staff_baseline: Optional[int] = None
+
+
+class FlightListResponse(BaseModel):
+    flights: List[FlightSummary]
+
+
+class LotRecommendation(BaseModel):
+    product_id: str
+    product_name: str
+    lot_number: Optional[str]
+    expiry_date: Optional[str]
+    standard_spec_qty: float
+    quantity_consumed: float
+    unit_cost: float
+    service_type: Optional[str]
+    crew_feedback: Optional[str]
+    recommended: bool = False
+
+
+class LotRecommendationResponse(BaseModel):
+    flight_id: str
+    origin: str
+    lots: List[LotRecommendation]
+
+
+class SpeechRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=4000)
+    voice_id: Optional[str] = Field(
+        None,
+        description="Identificador de la voz de ElevenLabs (por defecto Rachel).",
+    )
+    model_id: Optional[str] = Field(
+        None,
+        description="Modelo de ElevenLabs para TTS (por defecto eleven_flash_v2_5).",
+    )
+    stability: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Ajuste opcional de estabilidad de la voz.",
+    )
+    similarity_boost: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Ajuste opcional de similarity boost.",
+    )
+
+
+class SoundEffectRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=4000)
+    duration_seconds: float = Field(
+        0.6,
+        ge=0.1,
+        le=10.0,
+        description="Duracion aproximada del efecto de sonido.",
+    )
+    model_id: Optional[str] = Field(
+        None, description="Modelo de ElevenLabs para efectos de sonido."
+    )
+

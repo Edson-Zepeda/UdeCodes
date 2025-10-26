@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import re
 
 import joblib
@@ -15,6 +15,15 @@ APP_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_ROOT.parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "external"
 MODEL_PATH = PROJECT_ROOT / "backend" / "models" / "consumption_prediction_xgb.pkl"
+
+PLANT_ORIGIN_MAP = {
+    1: "DOH",
+    2: "JFK",
+    3: "LHR",
+    4: "MEX",
+    5: "NRT",
+    6: "ZRH",
+}
 
 FUEL_BURN_LITERS_PER_KG = 0.0003  # liters saved per kilogram removed
 DEFAULT_FUEL_COST_PER_LITER = 25.0
@@ -56,8 +65,8 @@ def _load_consumption_dataset() -> pd.DataFrame:
     raise FileNotFoundError("Missing consumption dataset in data/external/consumption_prediction.xlsx.")
 
 
-def _load_product_catalog() -> pd.DataFrame:
-    candidates = [
+def _expiration_candidates() -> List[Path]:
+    return [
         DATA_DIR / "expiration_management.xlsx",
         PROJECT_ROOT / "data" / "expiration_management.xlsx",
         PROJECT_ROOT
@@ -67,18 +76,25 @@ def _load_product_catalog() -> pd.DataFrame:
         / "01_ExpirationDateManagement"
         / "[HackMTY2025]_ExpirationDateManagement_Dataset_v1.xlsx",
     ]
-    for path in candidates:
+
+
+def load_expiration_dataset() -> pd.DataFrame:
+    for path in _expiration_candidates():
         if path.exists():
-            df = pd.read_excel(path)
-            df["Weight_or_Volume"] = df["Weight_or_Volume"].apply(_parse_weight)
-            catalog = (
-                df.groupby(["Product_ID", "Product_Name"])["Weight_or_Volume"]
-                .mean()
-                .reset_index()
-                .rename(columns={"Weight_or_Volume": "product_weight"})
-            )
-            return catalog
+            return pd.read_excel(path)
     raise FileNotFoundError("Missing expiration dataset in data/external/expiration_management.xlsx.")
+
+
+def _load_product_catalog() -> pd.DataFrame:
+    df = load_expiration_dataset()
+    df["Weight_or_Volume"] = df["Weight_or_Volume"].apply(_parse_weight)
+    catalog = (
+        df.groupby(["Product_ID", "Product_Name"])["Weight_or_Volume"]
+        .mean()
+        .reset_index()
+        .rename(columns={"Weight_or_Volume": "product_weight"})
+    )
+    return catalog
 
 
 def _load_flight_complexity() -> pd.DataFrame:
@@ -109,6 +125,62 @@ def _load_flight_complexity() -> pd.DataFrame:
             )
             return complexity
     raise FileNotFoundError("Missing productivity dataset in data/external/productivity_estimation.xlsx.")
+
+def build_scenario_frames(payloads: Iterable[Dict[str, Any]]) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
+    base_df = _load_consumption_dataset()
+    baseline_frames: List[pd.DataFrame] = []
+    scenario_frames: List[pd.DataFrame] = []
+    warnings: List[str] = []
+
+    for payload in payloads:
+        plant_id = int(payload.get("plant_id", 0) or 0)
+        origin = PLANT_ORIGIN_MAP.get(plant_id)
+        if not origin:
+            warnings.append(f"Planta {plant_id} no tiene origen mapeado.")
+            continue
+
+        plant_rows = base_df[base_df["Origin"] == origin]
+        if plant_rows.empty:
+            warnings.append(f"No hay filas base para la planta {plant_id} (origen {origin}).")
+            continue
+
+        baseline_frames.append(plant_rows)
+
+        scenario_copy = plant_rows.copy()
+        day_value = str(payload.get("day", "")).strip()
+        scenario_date = pd.to_datetime(day_value, format="%Y%m%d", errors="coerce")
+        if pd.isna(scenario_date):
+            scenario_date = pd.Timestamp.utcnow().normalize()
+        scenario_copy["Date"] = scenario_date
+
+        passengers = payload.get("passengers")
+        if passengers is None or passengers <= 0:
+            passengers = float(plant_rows["Passenger_Count"].mean())
+        baseline_passengers = payload.get("baseline_passengers") or float(
+            plant_rows["Passenger_Count"].mean() or 0.0
+        )
+        ratio = (
+            float(passengers) / baseline_passengers if baseline_passengers and baseline_passengers > 0 else 1.0
+        )
+
+        scenario_copy["Passenger_Count"] = float(passengers)
+        scenario_copy["Flight_ID"] = scenario_copy["Flight_ID"].astype(str) + "_SIM"
+
+        for col in ["Standard_Specification_Qty", "Quantity_Returned", "Quantity_Consumed"]:
+            scenario_copy[col] = (
+                scenario_copy[col].astype(float) * ratio
+            ).round().clip(lower=0).astype(int)
+
+        scenario_copy["Crew_Feedback"] = None
+        scenario_frames.append(scenario_copy)
+
+    baseline_df = (
+        pd.concat(baseline_frames, ignore_index=True) if baseline_frames else pd.DataFrame()
+    )
+    scenario_df = (
+        pd.concat(scenario_frames, ignore_index=True) if scenario_frames else pd.DataFrame()
+    )
+    return baseline_df, scenario_df, warnings
 
 @dataclass
 class FeatureBundle:
@@ -205,7 +277,8 @@ def _predict_with_service_models(
             continue
         info = service_models.get(service_type)
         model = info["model"] if info else global_model
-        preds[mask] = model.predict(X.loc[mask, list(bundle.features)])
+        mask_np = mask.to_numpy()
+        preds[mask_np] = model.predict(X.iloc[mask_np, :][list(bundle.features)])
     return preds
 
 
@@ -231,6 +304,7 @@ def calculate_financial_impact(
     fuel_burn_liters_per_kg: float = FUEL_BURN_LITERS_PER_KG,
     buffer_factor: float = RECOMMENDED_BUFFER,
     unit_margin_factor: float = DEFAULT_UNIT_MARGIN_FACTOR,
+    dataset_override: Optional[pd.DataFrame] = None,
 ) -> FinancialResults:
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
@@ -246,7 +320,22 @@ def calculate_financial_impact(
     global_model = artifact["model"]
     service_models = artifact.get("service_models", {})
 
-    df = _load_consumption_dataset()
+    if dataset_override is not None:
+        if dataset_override.empty:
+            return FinancialResults(
+                waste_cost_baseline=0.0,
+                waste_cost_spir=0.0,
+                waste_savings=0.0,
+                fuel_weight_reduction_kg=0.0,
+                fuel_cost_savings=0.0,
+                recovered_retail_value=0.0,
+                details=pd.DataFrame(),
+            )
+        df = dataset_override.copy()
+        df["Date"] = pd.to_datetime(df["Date"])
+    else:
+        df = _load_consumption_dataset()
+
     product_catalog = _load_product_catalog()
     flight_complexity = _load_flight_complexity()
 
@@ -315,7 +404,6 @@ def calculate_financial_impact(
         details=details,
     )
 
-
 def resumen_financiero() -> None:
     results = calculate_financial_impact()
     print("=== Impacto financiero estimado (análisis piloto) ===")
@@ -328,6 +416,10 @@ def resumen_financiero() -> None:
     print(f"Impacto total estimado:        ${results.total_impact:,.2f}")
 
 
+def load_consumption_dataset() -> pd.DataFrame:
+    return _load_consumption_dataset()
+
+
 __all__ = [
     "calculate_financial_impact",
     "FinancialResults",
@@ -336,4 +428,6 @@ __all__ = [
     "DEFAULT_UNIT_MARGIN_FACTOR",
     "RECOMMENDED_BUFFER",
     "resumen_financiero",
+    "load_consumption_dataset",
+    "load_expiration_dataset",
 ]
