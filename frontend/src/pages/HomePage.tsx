@@ -11,7 +11,7 @@ const stats = [
   },
   {
     title: "Ahorro en desperdicio",
-    description: "OptimizaciÃ³n de la carga con buffer dinÃ¡mico por vuelo",
+    description: "Optimización de la carga con buffer dinámico por vuelo",
     value: "$1.1M MXN"
   },
   {
@@ -36,7 +36,7 @@ const HomePage = () => {
     <div className="page-wrapper">
       <section className="hero">
         <h1>Welcome to SPIR</h1>
-        <p>Sistema de Predicción Inteligente de Recursos. Combina forecasting, simulaciones y anÃ¡lisis financiero en un solo lugar.</p>
+        <p>Sistema de Predicción Inteligente de Recursos. Combina forecasting, simulaciones y análisis financiero en un solo lugar.</p>
         <div className="hero__actions">
           <Link to="/dashboard" className="primary-button">
             Ir al simulador financiero
@@ -49,7 +49,7 @@ const HomePage = () => {
 
       <section style={{ marginTop: "48px" }}>
         <div className="section-heading">
-          <h2>Impacto EstratÃ©gico</h2>
+          <h2>Impacto Estratégico</h2>
           <span style={{ color: "rgba(244,246,251,0.5)", fontSize: "0.85rem" }}>Resultados del piloto en 4 hubs críticos</span>
         </div>
         <div className="card-grid flight-grid">
@@ -69,11 +69,11 @@ const HomePage = () => {
         <div className="section-heading">
           <h2>Próximos vuelos monitoreados</h2>
           <Link to="/dashboard" className="nav-bar__link">
-            Ver recomendaciones →
+            Ver recomendaciones  →
           </Link>
         </div>
         <div className="card-grid flight-grid">
-          {loading && <div style={{ color: "rgba(244,246,251,0.6)" }}>Cargando vuelos…€¦</div>}
+          {loading && <div style={{ color: "rgba(244,246,251,0.6)" }}>Cargando vuelos…</div>}
           {!loading && flights.map((flight) => (
             <article key={flight.id} className="flight-card" onClick={() => handleSelectFlight(flight)} style={{ cursor: "pointer" }}>
               <span className="flight-card__label">{flight.airline}</span>
@@ -94,3 +94,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+
