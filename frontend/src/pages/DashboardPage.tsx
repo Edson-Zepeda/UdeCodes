@@ -126,12 +126,6 @@ const DashboardPage = () => {
   const fetchFinancialImpact = useCallback(async () => {
     setLoading(true);
     setError(null);
-    if (!selectedFlight) {
-      // if no flight selected, go back to home
-      navigate("/");
-      setLoading(false);
-      return;
-    }
 
     try {
       const response = await fetch(`${API_BASE}/predict/financial-impact`, {
