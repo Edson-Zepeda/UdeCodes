@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import io
 import math
@@ -684,7 +684,7 @@ def list_flights() -> FlightListResponse:
         origin = str(getattr(row, "Origin"))
         passengers = int(getattr(row, "Passenger_Count") or 0)
         airline = "gategroup partner"
-        route = f"{origin} → HUB"
+        route = f"{origin} - HUB"
         flights.append(
             FlightSummary(
                 flight_id=flight_id,
@@ -909,4 +909,5 @@ def recommend_lots_demo(flight_id: str) -> LotRecommendationResponse:
 
     origin = "MEX"
     return LotRecommendationResponse(flight_id=flight_id, origin=origin, lots=lots)
+
 
