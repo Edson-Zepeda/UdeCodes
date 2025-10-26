@@ -17,7 +17,10 @@ import formatCurrency from "../utils/formatCurrency";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, Filler);
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://127.0.0.1:8000";
+// Resolve API base: env var takes precedence; otherwise use /api in production (Vercel/spir.tech) or localhost in dev
+const FROM_ENV = (import.meta.env.VITE_API_BASE_URL as string | undefined);
+const API_BASE = FROM_ENV ?? (typeof window !== "undefined" && (window.location.hostname.endsWith("vercel.app") || window.location.hostname.endsWith("spir.tech")) ? "/api" : "http://127.0.0.1:8000");
+const API_HINT = FROM_ENV ?? "https://api.spir.tech";
 
 const SOUND_PROMPTS = {
   success: "positive confirmation chime with futuristic tone",
