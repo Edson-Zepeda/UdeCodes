@@ -128,7 +128,7 @@ const DashboardPage = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${API_HINT}/predict/financial-impact`, {
+      const response = await fetch(`${API_BASE}/predict/financial-impact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
