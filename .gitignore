@@ -1,4 +1,4 @@
-# Environment
+﻿# Environment
 .env
 *.env
 .env.local
@@ -32,6 +32,6 @@ notebooks/*-checkpoint.ipynb
 notebooks/forecasting_model.ipynb
 
 # Project specific
-backend/models/
+backend/models/*`n!backend/models/*.pkl`n!backend/models/.gitkeep
 Gategroup 2025-*/
 config/gemini.env
