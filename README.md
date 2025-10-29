@@ -1,6 +1,6 @@
 ﻿[![Backend Smoke](https://github.com/Edson-Zepeda/UdeCodes/actions/workflows/backend-smoke.yml/badge.svg)](https://github.com/Edson-Zepeda/UdeCodes/actions/workflows/backend-smoke.yml)
 
-# SPIR â€“ Intelligent Planning Toolkit (HackMTY 2025)
+# SPIR Intelligent Planning Toolkit (HackMTY 2025)
 
 SPIR (Smart Planning Intelligent Resources) is the data & backend foundation of our HackMTY 2025 solution for gategroup.  
 This repository delivers:
