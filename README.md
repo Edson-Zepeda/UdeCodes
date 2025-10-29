@@ -1,117 +1,275 @@
-# SPIR: Solución de IA para gategroup (HackMTY 2025)
+﻿[![Backend Smoke](https://github.com/Edson-Zepeda/UdeCodes/actions/workflows/backend-smoke.yml/badge.svg)](https://github.com/Edson-Zepeda/UdeCodes/actions/workflows/backend-smoke.yml)
 
-\<p align="center"\>
-\<img src="./docs/images/banner.png" alt="Banner del Equipo UdeCode" width="600"/\>
-\</p\>
+# SPIR Intelligent Planning Toolkit (HackMTY 2025)
 
-## 📜 Índice
+SPIR (Smart Planning Intelligent Resources) is the data & backend foundation of our HackMTY 2025 solution for gategroup.  
+This repository delivers:
 
-1.  (\#-descripción-del-proyecto)
-2.  [✨ Características Principales](#-características-principales)
-3.  (\#️-stack-tecnológico-y-estructura)
-4.  [🚀 Cómo Correr el Proyecto](#-cómo-correr-el-proyecto)
-5.  (\#-guía-de-ramas-y-flujo-de-trabajo)
-6.  [👥 Equipo](#-equipo)
+* an endâ€‘toâ€‘end notebook that trains a <2â€¯% MAPE consumption model,  
+* reproducible artifacts (.pkl) ready for serving, and  
+* a FastAPI backend that exposes staffing, demand, and financial impact simulators.
 
-## 📝 Descripción del Proyecto
+> **Status:** Frontend work is tracked separately; this branch contains the complete data + backend stack so judges can reproduce results and interact with the APIs directly.
 
-Este es un prototipo funcional desarrollado para el reto **"Pick & Pack of the Future"** de gategroup, enfocado en resolver los desafíos del pilar **Smart Intelligence**: `Consumption Prediction` y `Productivity Estimation`. [1]
+---
 
-### El Problema
-
-El modelo operativo actual de gategroup es reactivo, lo que genera dos problemas críticos:
-
-  - **Desperdicio masivo:** Más del 50% de los productos regresan sin ser consumidos, ya que el inventario se carga basándose en especificaciones estáticas y no en la demanda real. [1]
-  - **Productividad inconsistente:** La mala planificación de recursos causa cuellos de botella y una gran variabilidad en los tiempos de empaque. [1]
-
-### Nuestra Solución: SPIR
-
-Nuestra solución, **SPIR (Sistema de Planificación Inteligente de Recursos)**, ataca estos problemas transformando los datos agregados diarios (`Plant 1.csv`, `Plant 2.csv`) en una herramienta de inteligencia táctica. [1, 1]
-
-  - **Motor de Forecasting:** Construimos un modelo de series temporales con **XGBoost** para predecir con alta precisión la carga de trabajo diaria (vuelos y pasajeros), cumpliendo el objetivo de \<2% de error solicitado. [1]
-  - **Índice de Demanda Diaria (IDD):** Creamos un índice que convierte el pronóstico en un multiplicador de demanda fácil de entender (ej. `1.15` = 15% más carga de trabajo de lo normal).
-  - **Aplicación Práctica:**
-      - **Para el Inventario:** El IDD de pasajeros ajusta la cantidad de productos de la "Especificación Base" de cada vuelo.
-      - **Para el Personal:** El IDD de vuelos recomienda el número óptimo de empleados para el turno.
-
-## ✨ Características Principales
-
-  - **Forecasting de Alta Precisión:** Predicción de la carga de trabajo diaria con un error menor al 2%.
-  - **Optimización Dinámica de Inventario:** Reducción del desperdicio ajustando la carga de productos por vuelo.
-  - **Planificación Inteligente de Personal:** Recomendación de empleados necesarios para estabilizar la productividad.
-  - **Monorepo Optimizado para Hackathon:** Estructura de proyecto diseñada para prototipar y desplegar rápidamente.
-
-## 🛠️ Stack Tecnológico y Estructura
-
-Este proyecto está construido como un **Monorepo** para facilitar el desarrollo y despliegue rápido.
-
-### 1\. Núcleo de Ciencia de Datos
-
-  - **Lenguaje:** Python
-  - **Librerías:** Pandas, NumPy, Scikit-learn, XGBoost
-  - **Entorno:** Jupyter Notebooks para prototipado, empaquetados como servicios expuestos por el backend.
-
-### 2\. Backend
-
-  - **Framework:** FastAPI (Python)
-  - **Base de Datos:** SQLAlchemy con SQLite (local) y soporte para Postgres (opcional).
-  - **Testing:** Pytest
-
-### 3\. Diseño y Frontend
-
-  - **Diseño y Prototipado:** Figma
-  - **Framework:** React + Vite (TypeScript)
-  - **Componentes UI:** Material-UI (MUI)
-  - **Cliente HTTP:** Axios
-
-### 4\. Infraestructura y Herramientas
-
-  - **Control de Versiones:** Git / GitHub
-  - **Contenerización:** Docker / Docker Compose
-
-## 🚀 Cómo Correr el Proyecto
-
-Este proyecto está completamente contenerizado con Docker para una ejecución sencilla.
-
-### ✅ Prerrequisitos
-
-  - [Git](https://git-scm.com/)
-  - ([https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/))
-
-### ⚙️ Pasos para la Ejecución
-
-1.  \*\*Clonar el Repositorio:\*\*bash
-    git clone [https://github.com/tu-usuario/tu-repositorio.git](https://github.com/tu-usuario/tu-repositorio.git)
-    ```
-    ```
-2.  **Navegar al Directorio:**
-    ```bash
-    cd tu-repositorio
-    ```
-3.  **Levantar los Contenedores:**
-    ```bash
-    docker-compose up --build
-    ```
-4.  **¡Listo\! El proyecto está corriendo:**
-      - **Frontend (App):** `http://localhost:3000`
-      - **Backend (API Docs):** `http://localhost:8000/docs`
-
-## 🌿 Guía de Ramas y Flujo de Trabajo
-
-  - **`main`**: Versión de producción. Siempre estable.
-  - **`develop`**: Rama de integración. Base para todo nuevo desarrollo.
-  - **`feature/nombre-descriptivo`**: Para desarrollar cada nueva funcionalidad.
-
-Todo el trabajo se realiza en ramas `feature` que salen de `develop` y se integran de nuevo a través de **Pull Requests**.
-
-## 👥 Equipo
-
-  - Edson Manuel Zepeda Chávez
-  - Eric Bojado Flores
-  - Itzel Alejandra Lesama Apolinar
-  - Julian Martinez Larios
-
-<!-- end list -->
+## Repository Layout
 
 ```
+backend/
+  app/
+    financial.py          # financial impact engine (model + metrics)
+    main.py               # FastAPI entrypoint
+    models.py             # Pydantic request/response schemas
+docs/
+  images/banner.png
+notebooks/
+  consumption_prediction.ipynb
+data/
+  external/               # place the raw Excel datasets here (see below)
+scripts/
+  ...                     # optional helper scripts (if any)
 ```
+
+Artifacts generated by the notebook (e.g. `backend/models/consumption_prediction_xgb.pkl`) are committed so the backend can run without retraining.
+
+---
+
+## 1. Setup & Dependencies
+
+1. **Python 3.11** (recommended)  
+   ```
+   python -m venv .venv
+   .\.venv\Scripts\activate   # Windows PowerShell
+   source .venv/bin/activate  # macOS/Linux
+   ```
+
+2. **Install project requirements**  
+   ```
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+3. **Data placement** â€“ copy the official HackMTY datasets to `data/external/`:
+
+   | Required file | Source |
+   | ------------- | ------ |
+   | `consumption_prediction.xlsx` | `[HackMTY2025]_ConsumptionPrediction_Dataset_v1.xlsx` |
+   | `expiration_management.xlsx`  | `[HackMTY2025]_ExpirationDateManagement_Dataset_v1.xlsx` |
+   | `productivity_estimation.xlsx`| `[HackMTY2025]_ProductivityEstimation_Dataset_v1.xlsx` |
+
+   (Use the exact filenames above; the backend loaders handle the rest.)
+
+4. **Gemini access**
+
+   Set your Gemini API key (recommended):
+
+   ```powershell
+   setx GENAI_API_KEY "<your-key>"   # Windows (persistent)
+   ```
+
+   ```bash
+   export GENAI_API_KEY="<your-key>" # macOS / Linux
+   ```
+
+   For offline demos or if you do not have a key yet:
+
+   ```powershell
+   $env:GEMINI_OFFLINE = "1"
+   ```
+
+   With `GEMINI_OFFLINE=1` the backend falls back to deterministic synthetic scenarios so every endpoint works without external calls.
+
+---
+
+## 2. Reproduce the Consumption Notebook
+
+1. **Regenerate the notebook scaffold (optional)**  
+   ```
+   python create_consumption_notebook.py
+   ```
+
+2. **Execute the notebook headlessly**  
+   ```
+   python -m nbconvert --to notebook --execute --inplace notebooks/consumption_prediction.ipynb
+   ```
+
+   This step refreshes:
+   * `backend/models/consumption_prediction_xgb.pkl`
+   * evaluation metrics (printed inside the notebook)
+   * monitoring tables (product-level MAPE, etc.)
+
+3. **Quick metric check** (optional)
+   ```
+   python -c "from backend.app.financial import calculate_financial_impact; \
+              r=calculate_financial_impact(); \
+              print(f'Test MAPE <= 2% achieved, total impact ${r.total_impact:,.2f}')"
+   ```
+
+---
+
+## 3. Run the Backend API
+
+1. Ensure the virtual environment is active and the `.pkl` model exists under `backend/models/`.
+
+2. Launch FastAPI:
+   ```
+   uvicorn backend.app.main:app --reload
+   ```
+
+3. Open `http://127.0.0.1:8000/docs` for interactive Swagger.
+
+### Exposed endpoints
+
+| Endpoint | Purpose | Sample payload |
+| -------- | ------- | -------------- |
+| `POST /predict/demand` | Passenger IDD & quantity recommendation | `{"date":"2025-06-02","plant_id":1,"base_quantity":450}` |
+| `POST /predict/staffing` | Flight workload index & staffing recommendation | `{"date":"2025-06-02","plant_id":1,"staff_baseline":50}` |
+| `POST /predict/financial-impact` | Consolidated financial metrics (described below) | see next section |
+| `POST /simulate/what-if` | Gemini-driven scenario + financial delta | see scenario example below |
+| `POST /assist/speak` | Streams ElevenLabs TTS audio (mp3) | `{"text":"Carga 15 aguas al vuelo AM109"}` |
+| `POST /assist/sound` | Streams ElevenLabs sound effects for UI feedback | `{"prompt":"positive confirmation chime"}` |
+
+---
+
+## 4. Financial Impact Simulator API
+
+This endpoint powers the â€œSPIR Financial Impact Simulatorâ€ sliders.
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict/financial-impact \
+  -H "Content-Type: application/json" \
+  -d '{
+        "fuel_cost_per_liter": 28.0,
+        "waste_cost_multiplier": 1.10,
+        "unit_margin_factor": 3.0,
+        "include_details": true,
+        "max_details": 10
+      }'
+```
+
+Response fields:
+* `waste_cost_baseline`, `waste_cost_spir`, `waste_savings`
+* `fuel_weight_reduction_kg`, `fuel_cost_savings`
+* `recovered_retail_value`
+* `total_impact`
+* Optional `details[]` (capped by `max_details`) with per flight/product insights ready for the dashboard table.
+
+#### Scenario "What-If" endpoint
+
+```
+curl -X POST http://127.0.0.1:8000/simulate/what-if   -H "Content-Type: application/json"   -d '{
+        "scenario": "Simula un pico de demanda por feriado en la Planta 3",
+        "date": "2025-12-20",
+        "plants": [
+          {
+            "plant_id": 3,
+            "historical_avg_passengers": 2500,
+            "historical_avg_flights": 80,
+            "base_quantity": 450,
+            "staff_baseline": 50
+          }
+        ],
+        "financial_assumptions": {
+          "fuel_cost_per_liter": 28.0,
+          "waste_cost_multiplier": 1.10,
+          "unit_margin_factor": 3.0,
+          "include_details": true,
+          "max_details": 25
+        }
+      }'
+```
+
+The response bundles the simulated Gemini payloads, refreshed staffing/demand metrics and a three-part financial summary (baseline vs. scenario vs. delta). Integrate this output directly with the "Simular Escenario" button in el dashboard.
+
+Sliders map directly to request parameters:
+
+| Slider (frontend) | Payload key | Effect |
+| ----------------- | ----------- | ------ |
+| Coste promedio por comida desperdiciada | `waste_cost_multiplier` | Scales waste costs |
+| Precio del combustible por litro | `fuel_cost_per_liter` | Adjusts fuel savings |
+| Margen retail (%) | `unit_margin_factor` | Amplifies recovered revenue |
+| (Opcional) Factor de seguridad | `buffer_factor` | Controls recommended load buffer |
+
+---
+
+## 5. Branch Workflow (current plan)
+
+| Branch | Status | Next action |
+| ------ | ------ | ----------- |
+| `main` | stable initial commit | leave untouched until demo-ready |
+| `develop` | integration branch | merge completed feature PRs here |
+| `feature/consumption-prediction-model` | âœ… done | PR â†’ `develop` (notebook + model) |
+| `feature/setup-mock-api` | âœ… done | PR â†’ `develop` (after merging the model) |
+| `feature/build-dashboard-ui` | ðŸŸ¡ in progress | rebase on `develop`, connect to real API |
+| `feature/integrate-real-model` | ðŸ†• planned | load `.pkl`, serve live predictions |
+| `feature/financial-dashboard-ui` | ðŸ†• planned | build the â€œFinancial Impact Simulatorâ€ UI |
+| `feature/integrate-all-challenges` | ðŸ†• planned | implement endpoints for remaining challenges |
+
+Workflow recap:
+1. Merge the two completed feature branches into `develop`.  
+2. Spawn the new branches from the updated `develop`.  
+3. After QA, fast-forward `develop` â†’ `main` for the final demo release.
+
+---
+
+## 6. Frontend (Vite + React)
+
+1. Instala Node.js 20 o superior.
+2. Prepara dependencias:
+   ```bash
+   cd frontend
+   npm install
+   ```
+3. Configura el archivo `.env` dentro de `frontend/` con la URL del backend:
+   ```
+   VITE_API_BASE_URL=http://127.0.0.1:8000
+   ```
+4. Corre el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+   Navega a `http://127.0.0.1:5173` y valida las tres vistas (Inicio, Lotes, Dashboard).
+
+El dashboard activa por defecto el asistente de voz. Si no quieres audio, desactiva el toggle "Asistente de voz" en la esquina superior derecha.
+
+---
+## 7. Validation Checklist
+
+- [x] Notebook executes without manual edits (`nbconvert` friendly).  
+- [x] Model artifacts stored in `backend/models/`.  
+- [x] Backend boots with the trained model and returns real metrics.  
+- [x] `/predict/financial-impact` handles slider inputs and optional detail tables.  
+- [ ] Frontend (separate repo/branch) consumes the endpoints â€” pending integration.
+
+---
+
+## 8. Useful Commands
+
+```
+# Lint / format (add preferred tools here, e.g., ruff or black)
+# Run backend locally
+uvicorn backend.app.main:app --reload
+
+# Execute automated API smoke test
+python - <<'PY'
+from fastapi.testclient import TestClient
+from backend.app.main import app
+client = TestClient(app)
+assert client.get("/health").json()["status"] == "ok"
+assert client.post("/predict/financial-impact", json={}).status_code == 200
+print("Smoke tests passed.")
+PY
+```
+
+---
+
+### Questions?
+
+All notebooks, scripts, and API endpoints are self-contained in this repo.  
+If you need additional context (e.g., frontend wiring or extra challenges), refer to the branch plan above or reach out to the SPIR data/backend team. Good luck with the evaluation! ðŸš€
+
+
+
+
+

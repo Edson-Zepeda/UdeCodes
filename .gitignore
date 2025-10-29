@@ -1,3 +1,4 @@
+Environment
 .env
 *.env
 .env.local
@@ -7,31 +8,33 @@ venv/
 env/
 .env/
 
-__pycache__/
+Python artifacts
+pycache/
 *.pyc
-
 .pytest_cache/
 .coverage
 
+Node artifacts
 node_modules/
-
 npm-debug.log
 yarn-error.log
-
 .next/
 dist/
 build/
 
+OS
 .DS_Store
 Thumbs.db
 
-.ipynb_checkpointsbackend/models/
-Gategroup 2025-*/
+Notebooks / data artifacts
 .ipynb_checkpoints/
 notebooks/*-checkpoint.ipynb
-notebooks/forecasting_model.ipynb
-/backend/models/
-/Gategroup 2025-*/
-/.ipynb_checkpoints/
-/notebooks/*-checkpoint.ipynb
-/notebooks/forecasting_model.ipynb
+
+Project specific
+Ignora todo en models, pero permite .pkl (LFS) y .gitkeep
+backend/models/*
+!backend/models/*.pkl
+!backend/models/.gitkeep
+
+Gategroup 2025-*/
+config/gemini.env
