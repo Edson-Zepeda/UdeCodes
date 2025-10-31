@@ -146,7 +146,9 @@ const DashboardPage = () => {
 
       if (!response.ok) { try { console.log('[SPIR] status', response.status); } catch {} ; throw new Error(response.statusText); }
 
-      try { console.log('[SPIR] status', response.status); } catch {}\n      const json: FinancialImpact = await response.json();\n      try { console.log('[SPIR] impact', { total: json.total_impact, ws: json.waste_savings, fuel: json.fuel_cost_savings }); } catch {}
+      try { console.log('[SPIR] status', response.status); } catch {}
+      const json: FinancialImpact = await response.json();
+      try { console.log('[SPIR] impact', { total: json.total_impact, ws: json.waste_savings, fuel: json.fuel_cost_savings }); } catch {}
       setData(json);
 
       const previous = previousImpact.current;
