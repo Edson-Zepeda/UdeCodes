@@ -34,7 +34,7 @@ from .models import (
     LotRecommendation,
     LotRecommendationResponse,
 )
-from .. import gemini
+import gemini
 from .financial import calculate_financial_impact, build_scenario_frames
 from . import audio
 from . import financial as financial_mod
