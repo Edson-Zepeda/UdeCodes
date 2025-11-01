@@ -34,7 +34,15 @@ from .models import (
     LotRecommendation,
     LotRecommendationResponse,
 )
-import gemini
+# Robust import of the sibling gemini module for both run modes
+# (backend.app.main) and (app.main)
+try:
+    from .. import gemini  # when running as backend.app.main
+except Exception:
+    try:
+        from backend import gemini  # when invoked from repo root
+    except Exception:
+        import gemini  # when cwd is backend/
 from .financial import calculate_financial_impact, build_scenario_frames
 from . import audio
 from . import financial as financial_mod
