@@ -321,7 +321,7 @@ def predict_financial_impact(request: FinancialImpactRequest) -> FinancialImpact
                     df = df[df["Product_ID"].astype(str).isin([str(x) for x in request.product_ids])]
                 dataset_override = df
             except FileNotFoundError:
-                # Si no hay dataset disponible, continuar sin override (se devolverán ceros)
+                # Si no hay dataset disponible, continuar sin override (se devolverÃ¡n ceros)
                 dataset_override = None
 
         results = calculate_financial_impact(
@@ -332,7 +332,7 @@ def predict_financial_impact(request: FinancialImpactRequest) -> FinancialImpact
             dataset_override=dataset_override,
         )
     except FileNotFoundError:
-        # Salvaguarda final: respuesta vacía válida
+        # Salvaguarda final: respuesta vacÃ­a vÃ¡lida
         from .financial import FinancialResults
         results = FinancialResults(
             waste_cost_baseline=0.0,
@@ -836,8 +836,8 @@ def list_flights_demo() -> FlightListResponse:
     sample = [
         {
             "flight_id": "AM109",
-            "airline": "AeroMéxico",
-            "route": "MEX ? DOH",
+            "airline": "Aeromexico",
+            "route": "MEX -> DOH",
             "date": "2025-10-27",
             "departure_time": "08:45",
             "plant_id": 1,
@@ -851,7 +851,7 @@ def list_flights_demo() -> FlightListResponse:
         {
             "flight_id": "LH432",
             "airline": "Lufthansa",
-            "route": "FRA ? JFK",
+            "route": "FRA -> JFK",
             "date": "2025-10-27",
             "departure_time": "13:20",
             "plant_id": 3,
@@ -865,7 +865,7 @@ def list_flights_demo() -> FlightListResponse:
         {
             "flight_id": "BA249",
             "airline": "British Airways",
-            "route": "LHR ? GRU",
+            "route": "LHR -> GRU",
             "date": "2025-10-27",
             "departure_time": "18:10",
             "plant_id": 4,
@@ -879,7 +879,7 @@ def list_flights_demo() -> FlightListResponse:
         {
             "flight_id": "EK214",
             "airline": "Emirates",
-            "route": "IAH ? DXB",
+            "route": "IAH -> DXB",
             "date": "2025-10-28",
             "departure_time": "21:55",
             "plant_id": 2,
@@ -902,14 +902,14 @@ def recommend_lots_demo(flight_id: str) -> LotRecommendationResponse:
     lots = [
         {
             "product_id": "P-CHIPS-50",
-            "product_name": "Chips Clásicas 50g",
+            "product_name": "Chips ClÃ¡sicas 50g",
             "lot_number": "B47-2025",
             "expiry_date": "2025-11-12",
             "standard_spec_qty": 12.0,
             "quantity_consumed": 8.0,
             "unit_cost": 6.5,
             "service_type": "Retail",
-            "crew_feedback": "Buena aceptación",
+            "crew_feedback": "Buena aceptaciÃ³n",
             "recommended": True,
         },
         {
@@ -921,7 +921,7 @@ def recommend_lots_demo(flight_id: str) -> LotRecommendationResponse:
             "quantity_consumed": 6.0,
             "unit_cost": 12.0,
             "service_type": "Crew",
-            "crew_feedback": "Preferido por tripulación",
+            "crew_feedback": "Preferido por tripulaciÃ³n",
             "recommended": False,
         },
     ]
