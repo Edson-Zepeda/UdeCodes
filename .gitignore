@@ -31,9 +31,8 @@ Notebooks / data artifacts
 notebooks/*-checkpoint.ipynb
 
 Project specific
-Ignora todo en models, pero permite .pkl (LFS) y .gitkeep
+Ignora todo en models; solo deja .gitkeep (no subir .pkl)
 backend/models/*
-!backend/models/*.pkl
 !backend/models/.gitkeep
 
 Gategroup 2025-*/

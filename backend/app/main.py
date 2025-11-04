@@ -10,6 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -290,6 +291,15 @@ def _build_financial_response(
 @app.get("/health", tags=["health"])
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+# Optional root + robots to avoid noisy 404s in logs and provide a simple alive check
+@app.get("/", include_in_schema=False)
+def root() -> dict[str, str]:
+    return {"status": "ok", "service": "SPIR API"}
+
+@app.get("/robots.txt", include_in_schema=False, response_class=PlainTextResponse)
+def robots() -> str:
+    return "User-agent: *\nDisallow: /\n"
 
 
 @app.post("/predict/staffing", response_model=StaffingResponse, tags=["predictions"])

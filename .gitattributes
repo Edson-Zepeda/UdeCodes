@@ -1,1 +1,1 @@
-﻿backend/models/*.pkl filter=lfs diff=lfs merge=lfs -text
+# No Git LFS rules for model artifacts. Models are downloaded at deploy time.
