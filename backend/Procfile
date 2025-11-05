@@ -1,1 +1,21 @@
-web: bash -lc 'set -e; mkdir -p backend/models; P=/app/.venv/bin/python; if [ -x "$P" ]; then :; elif command -v python >/dev/null 2>&1; then P=python; elif command -v python3 >/dev/null 2>&1; then P=python3; else echo "Python not found" >&2; exit 1; fi; "$P" -c "import os,urllib.request,os.path; u=os.environ.get(\"MODEL_URL\"); d=\"backend/models/global_flights_forecasting_model.pkl\"; (u and not os.path.exists(d)) and urllib.request.urlretrieve(u,d)"; exec "$P" -m uvicorn app.main:app --host 0.0.0.0 --port $PORT'
+web: bash -lc 'set -e; mkdir -p backend/models data/external; P=/app/.venv/bin/python; if [ -x "$P" ]; then :; elif command -v python >/dev/null 2>&1; then P=python; elif command -v python3 >/dev/null 2>&1; then P=python3; else echo "Python not found" >&2; exit 1; fi; \
+"$P" - <<PY
+import os, os.path, urllib.request
+
+def fetch(url_env, dest):
+    u = os.environ.get(url_env)
+    if u and not os.path.exists(dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        print(f"[Procfile] Downloading {url_env} -> {dest}")
+        urllib.request.urlretrieve(u, dest)
+
+# Models
+fetch("CONSUMPTION_MODEL_URL", "backend/models/consumption_prediction_xgb.pkl")
+fetch("FLIGHTS_MODEL_URL", "backend/models/global_flights_forecasting_model.pkl")
+
+# Datasets
+fetch("CONSUMPTION_DATA_URL", "data/external/consumption_prediction.xlsx")
+fetch("EXPIRATION_DATA_URL", "data/external/expiration_management.xlsx")
+fetch("PRODUCTIVITY_DATA_URL", "data/external/productivity_estimation.xlsx")
+PY
+exec "$P" -m uvicorn app.main:app --host 0.0.0.0 --port $PORT'
