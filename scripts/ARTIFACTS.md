@@ -1,14 +1,14 @@
-﻿# Backend artifacts
+# Artefactos del Backend
 
-This backend looks for the consumption model at:
+El backend busca el modelo de consumo en:
 
 - `backend/models/consumption_prediction_xgb.pkl`
 
-To generate it, execute the consumption notebook and make sure the artifact is saved to that exact path.
+Para generarlo, ejecuta el notebook de consumo y asegúrate de guardar el artefacto exactamente en esa ruta.
 
-## Generate locally (Windows PowerShell)
+## Generar localmente (Windows PowerShell)
 
-1. Create venv and install deps:
+1. Crear entorno virtual e instalar dependencias
 
 ```powershell
 python -m venv .venv
@@ -17,33 +17,34 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-2. Run the notebook headlessly:
+2. Ejecutar el notebook de forma no interactiva
 
 ```powershell
 python -m jupyter nbconvert --execute --inplace notebooks\consumption_prediction.ipynb
 ```
 
-3. Verify file exists:
+3. Verificar que el archivo exista
 
 ```powershell
 Get-Item backend\models\consumption_prediction_xgb.pkl
 ```
 
-4. Commit via Git LFS:
+4. Hacer commit con Git LFS
 
 ```powershell
 git lfs install
 git lfs track "backend/models/*.pkl"
-# ensure .gitattributes contains the pattern above
+# verifica que .gitattributes contenga el patrón anterior
 Get-Content .gitattributes
 
 git add .gitattributes backend/models/consumption_prediction_xgb.pkl
-git commit -m "Add consumption model artifact (.pkl)"
+git commit -m "Agregar artefacto del modelo de consumo (.pkl)"
 git push
 ```
 
-Once pushed, Railway will redeploy and `/predict/financial-impact` will return non‑zero values.
+Una vez publicado, Railway redeplegará y `/predict/financial-impact` devolverá valores distintos de cero.
 
-## Notes
-- If the artifact is not present, the API returns zeros (no error) as a safe fallback.
-- Large files are stored via Git LFS to keep the repo light.
+## Notas
+- Si el artefacto no está presente, la API devuelve ceros (sin error) como fallback seguro.
+- Los archivos grandes se almacenan vía Git LFS para mantener el repositorio ligero.
+

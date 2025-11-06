@@ -1,14 +1,14 @@
 # Metodología de Análisis y Especificación del Modelo
 
-Este documento describe lógica, fórmulas y contratos de datos (I/O) para los motores de predicción y optimización del proyecto.
+Este documento describe la lógica, fórmulas y contratos de datos (I/O) para los motores de predicción y optimización del proyecto.
 
 ## 1. Objetivo del Modelo
 
 Automatizar decisiones que impactan beneficio y servicio en planta mediante tres capacidades:
 
 - Optimización de Lotes (FEFO): rotación óptima para reducir mermas por caducidad.
-- Predicción de Demanda (IDD): ajustar cantidades cargadas según demanda pronosticada.
-- Productividad: estimar personal necesario según carga de trabajo pronosticada.
+- Predicción de Demanda (IDD): ajustar cantidades cargadas según la demanda pronosticada.
+- Productividad: estimar personal necesario según la carga de trabajo pronosticada.
 
 ## 2. Modelos y Fórmulas
 
@@ -27,7 +27,7 @@ funcion obtenerLoteOptimo(lotes, fecha_vuelo):
 
 ### 2.2 Predicción de Cantidad (Índice de Demanda Diaria, IDD)
 
-Transforma la “Spec Base” estática en una lista dinámica por vuelo:
+Transforma la "Spec Base" estática en una lista dinámica por vuelo:
 
 Q_final = ceil((P_pronosticados / P_histórico) * Q_base)
 
@@ -51,17 +51,17 @@ Donde:
 
 ## 3. Contrato de Datos (API)
 
-- POST /predict/demand → demanda/IDD de pasajeros.
-- POST /predict/staffing → índice de carga de vuelos y personal sugerido.
-- POST /predict/financial-impact → métricas financieras agregadas y detalles opcionales.
+- POST /predict/demand - demanda/IDD de pasajeros.
+- POST /predict/staffing - índice de carga de vuelos y personal sugerido.
+- POST /predict/financial-impact - métricas financieras agregadas y detalles opcionales.
 
 ## 4. Entrenamiento y Artefactos
 
-- Notebook de consumo genera `backend/models/consumption_prediction_xgb.pkl`.
-- Sustituible vía variable `MODEL_URL` en despliegues (descarga automática en arranque).
+- El notebook de consumo genera `backend/models/consumption_prediction_xgb.pkl`.
+- Puede sustituirse vía variable `MODEL_URL` en despliegues (descarga automática al arrancar).
 
 ## 5. Validación
 
-- Métrica objetivo: MAPE <2% en consumo a nivel agregado.
-- Pruebas de humo: `/health`, `/predict/financial-impact` → 200 con payload válido aun sin artefacto local.
+- Métrica objetivo: MAPE < 2% en consumo a nivel agregado.
+- Pruebas de humo: `/health`, `/predict/financial-impact` -> 200 con payload válido aun sin artefacto local.
 
